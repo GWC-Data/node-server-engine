@@ -1,3 +1,9 @@
+## [1.14.0](https://github.com/prakashmahendran/node-server-engine/compare/v1.13.0...v1.14.0) (2026-03-29)
+
+### ✨ Features
+
+* add SQLite support for local offline development ([0b585ff](https://github.com/prakashmahendran/node-server-engine/commit/0b585ff360c65730f05349598ecee7ad11d17515))
+
 ## [1.13.0](https://github.com/prakashmahendran/node-server-engine/compare/v1.12.4...v1.13.0) (2026-03-26)
 
 ### ✨ Features
