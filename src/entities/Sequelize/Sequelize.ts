@@ -1,3 +1,4 @@
+import path from 'path';
 import { Sequelize, ModelCtor } from 'sequelize-typescript';
 import dbConfig from './Sequelize.config';
 import { Sequelize as SequelizeInterface } from './Sequelize.types';
@@ -47,7 +48,11 @@ export async function init(): Promise<void> {
       user: process.env.SQL_USER,
       port: process.env.SQL_PORT,
       dialect: process.env.SQL_TYPE || 'postgres',
-      isUnixSocket: process.env.SQL_HOST?.startsWith('/')
+      isUnixSocket: process.env.SQL_HOST?.startsWith('/'),
+      sqlStorage:
+        (process.env.SQL_TYPE ?? '').toLowerCase() === 'sqlite'
+          ? process.env.SQL_STORAGE || path.join(process.cwd(), 'database.sqlite')
+          : undefined
     }
   });
   
@@ -155,7 +160,25 @@ export function createSequelizeClient(): Sequelize {
       logging: false
     });
   }
-  
+
+  // File-based SQLite for local / offline dev (no SQL_HOST / live server)
+  const sqlType = (process.env.SQL_TYPE ?? '').toLowerCase();
+  if (sqlType === 'sqlite') {
+    const storage =
+      process.env.SQL_STORAGE && process.env.SQL_STORAGE.trim().length > 0
+        ? process.env.SQL_STORAGE.trim()
+        : path.join(process.cwd(), 'database.sqlite');
+    reportInfo({
+      message: 'Creating Sequelize client (SQLite file)',
+      data: { storage, dialect: 'sqlite' }
+    });
+    return new Sequelize({
+      dialect: 'sqlite',
+      storage,
+      logging: process.env.SQL_LOGGING === 'true' ? console.log : false
+    });
+  }
+
   // Throw an error if there is no host initial
   validateSequelizeEnvironment();
   
